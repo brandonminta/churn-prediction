@@ -8,6 +8,8 @@ from utils.visualization import (
     plot_categorical_by_churn,
     plot_feature_importance,
 )
+from utils.layout import render_sidebar
+
 
 # =========================================================
 # PAGE CONFIG
@@ -16,6 +18,8 @@ st.set_page_config(
     page_title="Churn Prediction | EDA",
     layout="wide"
 )
+
+render_sidebar()
 
 st.title("Análisis exploratorio")
 st.caption(
@@ -32,7 +36,10 @@ st.divider()
 def get_data():
     return load_dataset()
 
-df = get_data()
+
+df_raw = get_data()
+df = df_raw.copy()
+df["SeniorCitizen"] = df["SeniorCitizen"].map({0: "No", 1: "Yes"})
 
 
 @st.cache_data
@@ -67,8 +74,9 @@ numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
 categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
 
 # Variables no informativas
-if "customerID" in categorical_cols:
-    categorical_cols.remove("customerID")
+for drop_col in ["customerID", "Churn"]:
+    if drop_col in categorical_cols:
+        categorical_cols.remove(drop_col)
 
 controls_col, chart_col = st.columns([1, 2])
 
@@ -128,7 +136,12 @@ st.subheader("Importancia de variables")
 
 try:
     df_importance = get_feature_importances()
-    fig_importance = plot_feature_importance(df_importance)
+    top_n = st.select_slider(
+        "Cantidad de variables a mostrar",
+        options=[5, 10, 15, 20],
+        value=10,
+    )
+    fig_importance = plot_feature_importance(df_importance, top_n=top_n)
     st.pyplot(fig_importance, use_container_width=True)
 except FileNotFoundError as err:
     st.warning(str(err))

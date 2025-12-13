@@ -1,15 +1,20 @@
-# pages/1_Inferencia.py
+# pages/prediccion.py
 
+import warnings
 import streamlit as st
 import pandas as pd
+import sklearn
+from sklearn.exceptions import InconsistentVersionWarning
 
 from utils.loader import (
     load_model,
     load_feature_map,
     available_models,
     available_feature_sets,
+    load_dataset,
 )
 from utils.preprocessing import build_preprocessing_pipeline
+from utils.layout import render_sidebar
 
 
 # =========================================================
@@ -19,6 +24,8 @@ st.set_page_config(
     page_title="Churn Prediction | Predicción",
     layout="wide",
 )
+
+render_sidebar()
 
 st.title("Predicción de churn")
 st.caption(
@@ -81,6 +88,18 @@ def filter_dependencies(dependencies: dict, allowed_features: set) -> dict:
     return scoped
 
 
+def dependency_index(dependencies: dict) -> dict:
+    """Reverse map: child -> list of (parent, parent_value, forced_value)."""
+    child_map = {}
+    for parent, rules in dependencies.items():
+        for parent_value, child_rules in rules.items():
+            for child, forced in child_rules.items():
+                child_map.setdefault(child, []).append(
+                    (parent, parent_value, forced)
+                )
+    return child_map
+
+
 def format_label(field: str) -> str:
     return field.replace("_", " ")
 
@@ -110,20 +129,31 @@ with st.container():
         )
 
 st.markdown(
-    "Las variables mostradas a continuación se actualizan según el set de features "
-    "seleccionado y respetan las dependencias definidas en el mapa de Streamlit."
+    "Las variables mostradas a continuación se actualizan según el set de "
+    "features seleccionado y respetan las dependencias definidas en el mapa de "
+    "Streamlit."
 )
 
 
 # =========================================================
-# LOAD MODEL
+# LOAD MODEL WITH VERSION CHECK
 # =========================================================
 @st.cache_resource
 def get_model(name, fs):
-    return load_model(name, fs)
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always", InconsistentVersionWarning)
+        model_obj = load_model(name, fs)
+    return model_obj, w
 
 
-model = get_model(model_name, feature_set)
+model, _load_warnings = get_model(model_name, feature_set)
+train_version = getattr(model, "__sklearn_version__", None)
+if train_version and train_version != sklearn.__version__:
+    st.warning(
+        "El modelo se entrenó con scikit-learn "
+        f"{train_version} y el entorno actual usa {sklearn.__version__}. "
+        "Se recomienda alinear las versiones para evitar inconsistencias."
+    )
 
 
 # =========================================================
@@ -132,8 +162,10 @@ model = get_model(model_name, feature_set)
 st.subheader("Información del cliente")
 
 required_features = required_raw_features(feature_map, feature_set)
+required_cols_key = tuple(sorted(required_features))
 groups = filter_groups(feature_map["groups"], required_features)
 dependencies = filter_dependencies(feature_map["dependencies"], required_features)
+reverse_dependencies = dependency_index(dependencies)
 
 raw_input = {}
 
@@ -145,6 +177,28 @@ with st.form("prediction_form"):
             for i, (feature, options) in enumerate(features.items()):
                 with cols[i % 3]:
                     label = format_label(feature)
+
+                    # Check if this feature is constrained by a dependency
+                    forced_value = None
+                    if feature in reverse_dependencies:
+                        for parent, parent_value, forced in reverse_dependencies[feature]:
+                            parent_current = raw_input.get(parent, st.session_state.get(parent))
+                            if parent_current == parent_value:
+                                forced_value = forced
+                                disabled = True
+                                break
+
+                    if forced_value is not None:
+                        raw_input[feature] = forced_value
+                        st.selectbox(
+                            label,
+                            options,
+                            index=options.index(forced_value),
+                            disabled=True,
+                            key=feature,
+                            help="Opción fijada por la selección de servicios previa.",
+                        )
+                        continue
 
                     if options == "numeric":
                         if feature in INTEGER_FEATURES:
@@ -181,8 +235,23 @@ with st.form("prediction_form"):
 
 
 # =========================================================
-# APPLY DEPENDENCIES (POST-UI)
+# APPLY DEPENDENCIES AND RUN PIPELINE
 # =========================================================
+@st.cache_resource
+def get_reference_data(required_cols: tuple):
+    df_ref = load_dataset()
+    available_cols = [col for col in required_cols if col in df_ref.columns]
+    return df_ref[available_cols].copy()
+
+
+@st.cache_resource
+def get_pipeline(required_cols: tuple, fmap: dict):
+    ref = get_reference_data(required_cols)
+    pipeline = build_preprocessing_pipeline(ref, fmap)
+    pipeline.fit(ref)
+    return pipeline
+
+
 if submitted:
     for parent_feature, rules in dependencies.items():
         parent_value = raw_input.get(parent_feature)
@@ -197,9 +266,7 @@ if submitted:
     # -----------------------------
     # Build & Apply Pipeline
     # -----------------------------
-    pipeline = build_preprocessing_pipeline(X_raw, feature_map)
-    pipeline.fit(X_raw)
-
+    pipeline = get_pipeline(required_cols_key, feature_map)
     X_prep = pipeline.transform(X_raw)
     expected_order = feature_map["feature_sets"][feature_set]
     X_prep = X_prep.reindex(columns=expected_order, fill_value=0)

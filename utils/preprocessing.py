@@ -133,12 +133,20 @@ def build_preprocessing_pipeline(df, feature_map: dict):
         feature: opts for group in feature_map["groups"].values() for feature, opts in group.items()
     }
 
+    df = df.copy()
+
     numeric_cols = [
         col for col in df.columns if feature_catalog.get(col) == "numeric"
     ]
     categorical_cols = [
         col for col in df.columns if feature_catalog.get(col) != "numeric"
     ]
+
+    if numeric_cols:
+        df[numeric_cols] = df[numeric_cols].apply(
+            pd.to_numeric,
+            errors="coerce",
+        )
 
     numeric_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),

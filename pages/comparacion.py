@@ -5,6 +5,7 @@ from numbers import Number
 
 from utils.loader import load_model_results
 from utils.visualization import plot_metric_comparison
+from utils.layout import render_sidebar
 
 
 # =========================================================
@@ -14,6 +15,8 @@ st.set_page_config(
     page_title="Churn Prediction | Comparación",
     layout="wide",
 )
+
+render_sidebar()
 
 st.title("Comparación de modelos")
 st.caption(
@@ -90,26 +93,24 @@ metric_selected = st.selectbox(
 # =========================================================
 sns.set_theme(style="whitegrid")
 
-df_plot = df_results.dropna(subset=[metric_selected])
-if df_plot.empty:
-    st.info("No hay valores válidos para la métrica seleccionada.")
-else:
-    fig = plot_metric_comparison(df_plot, metric_selected)
-    st.pyplot(fig, use_container_width=True)
+left, right = st.columns([1.5, 1])
+with left:
+    df_plot = df_results.dropna(subset=[metric_selected])
+    if df_plot.empty:
+        st.info("No hay valores válidos para la métrica seleccionada.")
+    else:
+        fig = plot_metric_comparison(df_plot, metric_selected)
+        st.pyplot(fig, use_container_width=True)
+
+with right:
+    st.subheader("Tabla detallada")
+    sorted_df = df_results.sort_values(metric_selected, ascending=False)
+    st.dataframe(
+        sorted_df.style.format("{:.4f}", subset=numeric_metrics),
+        use_container_width=True,
+    )
 
 st.divider()
-
-
-# =========================================================
-# FULL VS REDUCED COMPARISON TABLE
-# =========================================================
-st.subheader("Tabla detallada")
-
-sorted_df = df_results.sort_values(metric_selected, ascending=False)
-st.dataframe(
-    sorted_df.style.format("{:.4f}", subset=numeric_metrics),
-    use_container_width=True,
-)
 
 
 # =========================================================
@@ -149,4 +150,3 @@ if best_row is not None:
         selected_key = f"{best_row['Model'].lower()}_{best_row['Feature Set'].lower()}"
         params = results[selected_key]["params"]
         st.json(params)
-

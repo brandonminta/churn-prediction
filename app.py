@@ -1,5 +1,7 @@
 import streamlit as st
 
+from utils.layout import render_sidebar
+
 # =========================================================
 # APP CONFIG
 # =========================================================
@@ -10,26 +12,9 @@ st.set_page_config(
 )
 
 # =========================================================
-# SIDEBAR
+# SIDEBAR (GLOBAL)
 # =========================================================
-with st.sidebar:
-    st.title("Churn Prediction")
-    st.caption(
-        "Suite ligera en Streamlit para inferencia, benchmarking y análisis "
-        "exploratorio del dataset Telco Customer Churn."
-    )
-
-    st.divider()
-
-    st.subheader("Navegación")
-    st.page_link("app.py", label="Inicio")
-    st.page_link("pages/prediccion.py", label="Predicción")
-    st.page_link("pages/comparacion.py", label="Comparación")
-    st.page_link("pages/dashboard.py", label="EDA")
-
-    st.divider()
-
-    st.caption("Modelos entrenados con pipelines reproducibles y versiones full/reduced de features.")
+render_sidebar()
 
 # =========================================================
 # MAIN LANDING PAGE
@@ -40,45 +25,44 @@ st.markdown(
     """
     Portal interactivo para evaluar riesgo de churn en el dataset Telco. La
     aplicación organiza el flujo completo (EDA, comparación de modelos y
-    predicción) en páginas modulares con una navegación mínima y textos
-    descriptivos.
+    predicción) en páginas modulares con navegación consistente.
     """
 )
 
 st.divider()
 
-st.subheader("Módulos disponibles")
+st.subheader("Qué ofrece la aplicación")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown(
         """
-        ### Predicción
-        Interfaz para ejecutar inferencias con versiones full o reduced del
-        pipeline de features.
+        **Predicción**
+
+        Ejecución de inferencias con versiones *full* o *reduced* de features,
+        respetando el mismo pipeline del entrenamiento.
         """
     )
-    st.page_link("pages/prediccion.py", label="Ir a Predicción")
 
 with col2:
     st.markdown(
         """
-        ### Comparación
-        Visualiza métricas y parámetros clave de cada modelo entrenado.
+        **Comparación**
+
+        Métricas y parámetros clave de cada modelo entrenado en un mismo
+        conjunto de validación.
         """
     )
-    st.page_link("pages/comparacion.py", label="Ir a Comparación")
 
 with col3:
     st.markdown(
         """
-        ### EDA interactivo
-        Explora la distribución de las variables y su relación con el churn.
+        **EDA interactivo**
+
+        Distribuciones y relaciones con churn para entender el dataset de
+        entrada y sus variables críticas.
         """
     )
-    st.page_link("pages/dashboard.py", label="Ir al Dashboard")
 
-st.info(
-    "Utiliza los accesos del panel lateral o los botones superiores para navegar entre las secciones."
-)
+st.info("Utiliza el panel lateral para acceder directamente a cada sección.")
