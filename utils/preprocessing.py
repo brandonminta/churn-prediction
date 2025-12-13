@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -42,7 +41,8 @@ class DFColumnTransformer(BaseEstimator, TransformerMixin):
         return pd.DataFrame(arr, columns=self.feature_names_, index=X.index)
 
 class DataFramePreparer(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self, category_options: dict):
+        self.category_options = category_options
         self.binary_cols = []
         self.nominal_cols = []
         self.contract_col = "Contract"
@@ -54,20 +54,28 @@ class DataFramePreparer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = X.copy()
 
-        cat_cols = X.select_dtypes(include=["object"]).columns.tolist()
+        cat_cols = [
+            col for col in X.columns
+            if self.category_options.get(col) != "numeric"
+        ]
 
         if self.contract_col in cat_cols:
             cat_cols.remove(self.contract_col)
 
         for col in cat_cols:
-            uniques = X[col].dropna().unique()
+            options = self.category_options.get(col, [])
+            uniques = options if isinstance(options, list) else X[col].dropna().unique()
             if len(uniques) == 2:
                 self.binary_cols.append(col)
             else:
                 self.nominal_cols.append(col)
 
+        contract_cats = self.category_options.get(
+            self.contract_col,
+            ["Month-to-month", "One year", "Two year"]
+        )
         self.ordinal_encoder = OrdinalEncoder(
-            categories=[["Month-to-month", "One year", "Two year"]],
+            categories=[contract_cats],
             handle_unknown="use_encoded_value",
             unknown_value=-1
         )
@@ -75,14 +83,22 @@ class DataFramePreparer(BaseEstimator, TransformerMixin):
             self.ordinal_encoder.fit(X[[self.contract_col]])
 
         if self.binary_cols:
+            binary_categories = [
+                self.category_options.get(col, []) for col in self.binary_cols
+            ]
             self.binary_encoder = OrdinalEncoder(
+                categories=binary_categories,
                 handle_unknown="use_encoded_value",
                 unknown_value=-1
             )
             self.binary_encoder.fit(X[self.binary_cols])
 
         if self.nominal_cols:
+            nominal_categories = [
+                self.category_options.get(col, None) for col in self.nominal_cols
+            ]
             self.nominal_encoder = OneHotEncoder(
+                categories=nominal_categories,
                 sparse_output=False,
                 handle_unknown="ignore"
             )
@@ -109,10 +125,20 @@ class DataFramePreparer(BaseEstimator, TransformerMixin):
             outputs.append(pd.DataFrame(nom_t, columns=self.nominal_feature_names, index=X.index))
 
         return pd.concat(outputs, axis=1)
-def build_preprocessing_pipeline(df):
 
-    numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
-    categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
+
+def build_preprocessing_pipeline(df, feature_map: dict):
+
+    feature_catalog = {
+        feature: opts for group in feature_map["groups"].values() for feature, opts in group.items()
+    }
+
+    numeric_cols = [
+        col for col in df.columns if feature_catalog.get(col) == "numeric"
+    ]
+    categorical_cols = [
+        col for col in df.columns if feature_catalog.get(col) != "numeric"
+    ]
 
     numeric_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
@@ -121,7 +147,7 @@ def build_preprocessing_pipeline(df):
 
     ct = ColumnTransformer([
         ("num", numeric_pipeline, numeric_cols),
-        ("cat", DataFramePreparer(), categorical_cols)
+        ("cat", DataFramePreparer(feature_catalog), categorical_cols)
     ])
 
     return DFColumnTransformer(ct, numeric_cols)
