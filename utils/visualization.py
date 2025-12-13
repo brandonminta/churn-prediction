@@ -1,5 +1,3 @@
-# utils/visualization.py
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -18,12 +16,12 @@ def set_style():
 def plot_numeric_by_churn(
     df: pd.DataFrame,
     column: str,
-    churn_col: str = "Churn"
+    churn_col: str = "Churn",
 ):
     """
     Boxplot of a numerical variable grouped by churn.
     """
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     sns.boxplot(
         data=df,
@@ -33,7 +31,7 @@ def plot_numeric_by_churn(
         ax=ax
     )
 
-    ax.set_title(f"{column} by {churn_col}", fontsize=14)
+    ax.set_title(f"{column} by {churn_col}", fontsize=13)
     ax.set_xlabel("")
     ax.set_ylabel(column)
 
@@ -43,12 +41,12 @@ def plot_numeric_by_churn(
 def plot_categorical_by_churn(
     df: pd.DataFrame,
     column: str,
-    churn_col: str = "Churn"
+    churn_col: str = "Churn",
 ):
     """
     Countplot of a categorical variable grouped by churn.
     """
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     sns.countplot(
         data=df,
@@ -58,7 +56,7 @@ def plot_categorical_by_churn(
         ax=ax
     )
 
-    ax.set_title(f"{column} by {churn_col}", fontsize=14)
+    ax.set_title(f"{column} by {churn_col}", fontsize=13)
     ax.set_xlabel("")
     ax.set_ylabel("Count")
     ax.tick_params(axis="x", rotation=45)
@@ -76,10 +74,14 @@ def plot_metric_comparison(
     """
     Barplot comparing models by a selected metric.
     """
-    fig, ax = plt.subplots(figsize=(12, 6))
+    df_plot = df_results.copy()
+    df_plot[metric] = pd.to_numeric(df_plot[metric], errors="coerce")
+    df_plot = df_plot.dropna(subset=[metric])
+
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     sns.barplot(
-        data=df_results,
+        data=df_plot,
         x="Model",
         y=metric,
         hue="Feature Set",
@@ -87,7 +89,7 @@ def plot_metric_comparison(
         ax=ax
     )
 
-    ax.set_title(f"Comparison by {metric}", fontsize=14)
+    ax.set_title(f"Comparison by {metric}", fontsize=13)
     ax.set_xlabel("")
     ax.set_ylabel(metric)
 
@@ -106,7 +108,7 @@ def plot_feature_importance(
     """
     df_plot = df_importance.head(top_n)
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(7, 5))
 
     sns.barplot(
         data=df_plot,
@@ -116,7 +118,7 @@ def plot_feature_importance(
         ax=ax
     )
 
-    ax.set_title("Top Feature Importances", fontsize=14)
+    ax.set_title("Top Feature Importances", fontsize=13)
     ax.set_xlabel("Importance")
     ax.set_ylabel("")
 
