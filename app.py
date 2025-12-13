@@ -5,7 +5,6 @@ import streamlit as st
 # =========================================================
 st.set_page_config(
     page_title="Churn Prediction App",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -23,10 +22,10 @@ with st.sidebar:
     st.divider()
 
     st.subheader("Navegación")
-    st.page_link("app.py", label="Inicio", icon="🏠")
-    st.page_link("pages/prediccion.py", label="Predicción", icon="🤖")
-    st.page_link("pages/comparacion.py", label="Comparación", icon="📈")
-    st.page_link("pages/dashboard.py", label="EDA", icon="🧭")
+    st.page_link("app.py", label="Inicio")
+    st.page_link("pages/prediccion.py", label="Predicción")
+    st.page_link("pages/comparacion.py", label="Comparación")
+    st.page_link("pages/dashboard.py", label="EDA")
 
     st.divider()
 
@@ -60,7 +59,7 @@ with col1:
         pipeline de features.
         """
     )
-    st.page_link("pages/prediccion.py", label="Ir a Predicción", icon="➡️")
+    st.page_link("pages/prediccion.py", label="Ir a Predicción")
 
 with col2:
     st.markdown(
@@ -69,7 +68,7 @@ with col2:
         Visualiza métricas y parámetros clave de cada modelo entrenado.
         """
     )
-    st.page_link("pages/comparacion.py", label="Ir a Comparación", icon="➡️")
+    st.page_link("pages/comparacion.py", label="Ir a Comparación")
 
 with col3:
     st.markdown(
@@ -78,7 +77,7 @@ with col3:
         Explora la distribución de las variables y su relación con el churn.
         """
     )
-    st.page_link("pages/dashboard.py", label="Ir al Dashboard", icon="➡️")
+    st.page_link("pages/dashboard.py", label="Ir al Dashboard")
 
 st.info(
     "Utiliza los accesos del panel lateral o los botones superiores para navegar entre las secciones."

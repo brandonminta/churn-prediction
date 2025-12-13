@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-from utils.loader import load_dataset
+from utils.loader import load_dataset, load_feature_importance
 from utils.visualization import (
     set_style,
     plot_numeric_by_churn,
-    plot_categorical_by_churn
+    plot_categorical_by_churn,
+    plot_feature_importance,
 )
 
 # =========================================================
@@ -32,6 +33,11 @@ def get_data():
     return load_dataset()
 
 df = get_data()
+
+
+@st.cache_data
+def get_feature_importances():
+    return load_feature_importance()
 
 # =========================================================
 # DATA OVERVIEW
@@ -64,54 +70,65 @@ categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
 if "customerID" in categorical_cols:
     categorical_cols.remove("customerID")
 
-analysis_type = st.radio(
-    "Tipo de variable",
-    ["Numerical", "Categorical"],
-    horizontal=True
-)
+controls_col, chart_col = st.columns([1, 2])
 
-if analysis_type == "Numerical":
-    selected_col = st.selectbox(
-        "Variable numérica",
-        numeric_cols
-    )
-else:
-    selected_col = st.selectbox(
-        "Variable categórica",
-        categorical_cols
+with controls_col:
+    analysis_type = st.radio(
+        "Tipo de variable",
+        ["Numerical", "Categorical"],
+        horizontal=True
     )
 
-# =========================================================
-# PLOTTING
-# =========================================================
-set_style()
+    if analysis_type == "Numerical":
+        selected_col = st.selectbox(
+            "Variable numérica",
+            numeric_cols
+        )
+    else:
+        selected_col = st.selectbox(
+            "Variable categórica",
+            categorical_cols
+        )
 
-if analysis_type == "Numerical":
-    fig = plot_numeric_by_churn(df, selected_col)
-else:
-    fig = plot_categorical_by_churn(df, selected_col)
+with chart_col:
+    set_style()
 
-st.pyplot(fig)
+    if analysis_type == "Numerical":
+        fig = plot_numeric_by_churn(df, selected_col)
+    else:
+        fig = plot_categorical_by_churn(df, selected_col)
+
+    st.pyplot(fig, use_container_width=True)
+
+with controls_col:
+    st.markdown("**Estadísticos resumidos**")
+
+    if analysis_type == "Numerical":
+        summary = (
+            df.groupby("Churn")[selected_col]
+            .describe()
+            .round(2)
+        )
+        st.dataframe(summary, use_container_width=True)
+
+    else:
+        summary = (
+            df.groupby([selected_col, "Churn"])
+            .size()
+            .unstack(fill_value=0)
+        )
+        st.dataframe(summary, use_container_width=True)
 
 st.divider()
 
 # =========================================================
-# SUMMARY STATISTICS
+# FEATURE IMPORTANCE
 # =========================================================
-st.subheader("Estadísticos resumidos")
+st.subheader("Importancia de variables")
 
-if analysis_type == "Numerical":
-    summary = (
-        df.groupby("Churn")[selected_col]
-        .describe()
-        .round(2)
-    )
-    st.dataframe(summary, use_container_width=True)
-
-else:
-    summary = (
-        df.groupby([selected_col, "Churn"])
-        .size()
-        .unstack(fill_value=0)
-    )
-    st.dataframe(summary, use_container_width=True)
+try:
+    df_importance = get_feature_importances()
+    fig_importance = plot_feature_importance(df_importance)
+    st.pyplot(fig_importance, use_container_width=True)
+except FileNotFoundError as err:
+    st.warning(str(err))

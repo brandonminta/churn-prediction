@@ -39,6 +39,8 @@ def get_feature_map():
 
 feature_map = get_feature_map()
 
+INTEGER_FEATURES = {"tenure"}
+
 
 def required_raw_features(feature_map: dict, feature_set: str) -> set:
     encoded_features = feature_map["feature_sets"][feature_set]
@@ -145,12 +147,21 @@ with st.form("prediction_form"):
                     label = format_label(feature)
 
                     if options == "numeric":
-                        raw_input[feature] = st.number_input(
-                            label,
-                            min_value=0.0,
-                            step=1.0,
-                            key=feature,
-                        )
+                        if feature in INTEGER_FEATURES:
+                            raw_input[feature] = st.number_input(
+                                label,
+                                min_value=0,
+                                step=1,
+                                format="%d",
+                                key=feature,
+                            )
+                        else:
+                            raw_input[feature] = st.number_input(
+                                label,
+                                min_value=0.0,
+                                step=1.0,
+                                key=feature,
+                            )
                     elif isinstance(options, list) and all(
                         isinstance(opt, (int, float)) for opt in options
                     ):
