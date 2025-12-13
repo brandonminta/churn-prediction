@@ -1,25 +1,24 @@
-# pages/comparacion.py
-
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
+from numbers import Number
 
 from utils.loader import load_model_results
+from utils.visualization import plot_metric_comparison
 
 
 # =========================================================
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="Churn Prediction | Model Comparison",
-    layout="wide"
+    page_title="Churn Prediction | Comparación",
+    layout="wide",
 )
 
-st.title("Model Comparison")
+st.title("Comparación de modelos")
 st.caption(
-    "Performance comparison across multiple trained models and feature sets. "
-    "All results were obtained on the same validation strategy."
+    "Resumen cuantitativo de los modelos entrenados bajo los dos conjuntos de "
+    "features (full y reduced) utilizando la misma partición de validación."
 )
 
 st.divider()
@@ -48,11 +47,12 @@ for model_key, content in results.items():
 
     row = {
         "Model": model_name.capitalize(),
-        "Feature Set": feature_set.capitalize()
+        "Feature Set": feature_set.capitalize(),
     }
 
     for metric_name, value in metrics.items():
-        row[metric_name] = value
+        if isinstance(value, Number):
+            row[metric_name] = float(value)
 
     records.append(row)
 
@@ -62,16 +62,26 @@ df_results = pd.DataFrame(records)
 # =========================================================
 # METRIC SELECTION
 # =========================================================
-st.subheader("Metric Overview")
+st.subheader("Métricas disponibles")
 
-available_metrics = [
+numeric_metrics = [
     col for col in df_results.columns
     if col not in ["Model", "Feature Set"]
+    and pd.api.types.is_numeric_dtype(df_results[col])
 ]
 
+df_results[numeric_metrics] = df_results[numeric_metrics].apply(
+    pd.to_numeric,
+    errors="coerce",
+)
+
+if not numeric_metrics:
+    st.warning("No se encontraron métricas numéricas en los resultados cargados.")
+    st.stop()
+
 metric_selected = st.selectbox(
-    "Select metric to compare",
-    available_metrics
+    "Selecciona la métrica a comparar",
+    numeric_metrics,
 )
 
 
@@ -80,25 +90,12 @@ metric_selected = st.selectbox(
 # =========================================================
 sns.set_theme(style="whitegrid")
 
-fig, ax = plt.subplots(figsize=(12, 6))
-
-sns.barplot(
-    data=df_results,
-    x="Model",
-    y=metric_selected,
-    hue="Feature Set",
-    palette="Set2",
-    ax=ax
-)
-
-ax.set_title(
-    f"Comparison by {metric_selected}",
-    fontsize=14
-)
-ax.set_xlabel("")
-ax.set_ylabel(metric_selected)
-
-st.pyplot(fig)
+df_plot = df_results.dropna(subset=[metric_selected])
+if df_plot.empty:
+    st.info("No hay valores válidos para la métrica seleccionada.")
+else:
+    fig = plot_metric_comparison(df_plot, metric_selected)
+    st.pyplot(fig, use_container_width=True)
 
 st.divider()
 
@@ -106,45 +103,50 @@ st.divider()
 # =========================================================
 # FULL VS REDUCED COMPARISON TABLE
 # =========================================================
-st.subheader("Detailed Metrics Table")
+st.subheader("Tabla detallada")
 
+sorted_df = df_results.sort_values(metric_selected, ascending=False)
 st.dataframe(
-    df_results
-        .sort_values(metric_selected, ascending=False)
-        .style
-        .format("{:.4f}", subset=available_metrics),
-    use_container_width=True
+    sorted_df.style.format("{:.4f}", subset=numeric_metrics),
+    use_container_width=True,
 )
 
 
 # =========================================================
 # BEST MODEL HIGHLIGHT
 # =========================================================
-best_row = df_results.loc[
-    df_results[metric_selected].idxmax()
-]
+best_row = None
 
-st.subheader("Best Model (by selected metric)")
+if not df_results[metric_selected].dropna().empty:
+    best_row = df_results.loc[
+        df_results[metric_selected].astype(float).idxmax()
+    ]
 
-col1, col2, col3 = st.columns(3)
+    st.subheader("Mejor modelo (por la métrica seleccionada)")
 
-with col1:
-    st.metric("Model", best_row["Model"])
+    col1, col2, col3 = st.columns(3)
 
-with col2:
-    st.metric("Feature Set", best_row["Feature Set"])
+    with col1:
+        st.metric("Modelo", best_row["Model"])
 
-with col3:
-    st.metric(
-        metric_selected,
-        f"{best_row[metric_selected]:.4f}"
-    )
+    with col2:
+        st.metric("Set de features", best_row["Feature Set"])
+
+    with col3:
+        st.metric(
+            metric_selected,
+            f"{best_row[metric_selected]:.4f}",
+        )
+else:
+    st.info("No hay métricas numéricas disponibles para comparar.")
 
 
 # =========================================================
 # PARAMETER INSPECTION (OPTIONAL)
 # =========================================================
-with st.expander("View model parameters"):
-    selected_key = f"{best_row['Model'].lower()}_{best_row['Feature Set'].lower()}"
-    params = results[selected_key]["params"]
-    st.json(params)
+if best_row is not None:
+    with st.expander("Parámetros del mejor modelo"):
+        selected_key = f"{best_row['Model'].lower()}_{best_row['Feature Set'].lower()}"
+        params = results[selected_key]["params"]
+        st.json(params)
+

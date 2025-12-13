@@ -76,10 +76,14 @@ def plot_metric_comparison(
     """
     Barplot comparing models by a selected metric.
     """
-    fig, ax = plt.subplots(figsize=(12, 6))
+    df_plot = df_results.copy()
+    df_plot[metric] = pd.to_numeric(df_plot[metric], errors="coerce")
+    df_plot = df_plot.dropna(subset=[metric])
+
+    fig, ax = plt.subplots(figsize=(10, 5))
 
     sns.barplot(
-        data=df_results,
+        data=df_plot,
         x="Model",
         y=metric,
         hue="Feature Set",

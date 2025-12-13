@@ -5,9 +5,8 @@ import streamlit as st
 # =========================================================
 st.set_page_config(
     page_title="Churn Prediction App",
-    page_icon=None,
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # =========================================================
@@ -15,84 +14,71 @@ st.set_page_config(
 # =========================================================
 with st.sidebar:
     st.title("Churn Prediction")
-    st.markdown(
-        """
-        **Interactive machine learning application** for customer churn analysis.
-
-        This app allows you to:
-        - Run churn predictions using trained models
-        - Compare multiple model versions
-        - Explore the dataset interactively
-        """
+    st.caption(
+        "Suite ligera en Streamlit para inferencia, benchmarking y análisis "
+        "exploratorio del dataset Telco Customer Churn."
     )
 
     st.divider()
 
-    st.markdown(
-        """
-        **Navigation**
-        Use the menu above to switch between:
-        - Inference
-        - Model Comparison
-        - EDA Dashboard
-        """
-    )
+    st.subheader("Navegación")
+    st.page_link("app.py", label="Inicio")
+    st.page_link("pages/prediccion.py", label="Predicción")
+    st.page_link("pages/comparacion.py", label="Comparación")
+    st.page_link("pages/dashboard.py", label="EDA")
 
     st.divider()
 
-    st.markdown(
-        """
-        **Project context**
-        Telco Customer Churn  
-        Midterm Exam – Machine Learning
-        """
-    )
+    st.caption("Modelos entrenados con pipelines reproducibles y versiones full/reduced de features.")
 
 # =========================================================
 # MAIN LANDING PAGE
 # =========================================================
-st.title("Customer Churn Prediction Application")
+st.title("Plataforma de churn prediction")
 
 st.markdown(
     """
-    This application showcases a complete machine learning workflow,
-    from exploratory data analysis to model comparison and interactive inference.
-
-    All preprocessing is handled through a custom pipeline, ensuring consistency
-    between training and deployment.
+    Portal interactivo para evaluar riesgo de churn en el dataset Telco. La
+    aplicación organiza el flujo completo (EDA, comparación de modelos y
+    predicción) en páginas modulares con una navegación mínima y textos
+    descriptivos.
     """
 )
 
 st.divider()
 
-st.subheader("Available Modules")
+st.subheader("Módulos disponibles")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown(
         """
-        ### Inference
-        Predict customer churn using different trained models and feature sets.
+        ### Predicción
+        Interfaz para ejecutar inferencias con versiones full o reduced del
+        pipeline de features.
         """
     )
+    st.page_link("pages/prediccion.py", label="Ir a Predicción")
 
 with col2:
     st.markdown(
         """
-        ### Model Comparison
-        Compare performance metrics across multiple models and feature configurations.
+        ### Comparación
+        Visualiza métricas y parámetros clave de cada modelo entrenado.
         """
     )
+    st.page_link("pages/comparacion.py", label="Ir a Comparación")
 
 with col3:
     st.markdown(
         """
-        ### EDA Dashboard
-        Explore the Telco dataset interactively and analyze relationships with churn.
+        ### EDA interactivo
+        Explora la distribución de las variables y su relación con el churn.
         """
     )
+    st.page_link("pages/dashboard.py", label="Ir al Dashboard")
 
 st.info(
-    "Use the sidebar to navigate between modules."
+    "Utiliza los accesos del panel lateral o los botones superiores para navegar entre las secciones."
 )
