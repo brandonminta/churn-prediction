@@ -12,14 +12,14 @@ from utils.visualization import (
 # PAGE CONFIG
 # =========================================================
 st.set_page_config(
-    page_title="Churn Prediction | EDA Dashboard",
+    page_title="Churn Prediction | EDA",
     layout="wide"
 )
 
-st.title("Exploratory Data Analysis")
+st.title("Análisis exploratorio")
 st.caption(
-    "Interactive exploration of the Telco Customer Churn dataset. "
-    "Analyze distributions and relationships with customer churn."
+    "Exploración interactiva del dataset Telco Customer Churn para entender la "
+    "distribución de las variables y su relación con el churn."
 )
 
 st.divider()
@@ -36,26 +36,26 @@ df = get_data()
 # =========================================================
 # DATA OVERVIEW
 # =========================================================
-st.subheader("Dataset Overview")
+st.subheader("Visión general del dataset")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Rows", df.shape[0])
+    st.metric("Filas", df.shape[0])
 
 with col2:
-    st.metric("Columns", df.shape[1])
+    st.metric("Columnas", df.shape[1])
 
 with col3:
     churn_rate = (df["Churn"] == "Yes").mean()
-    st.metric("Churn Rate", f"{churn_rate * 100:.2f}%")
+    st.metric("Tasa de churn", f"{churn_rate * 100:.2f}%")
 
 st.divider()
 
 # =========================================================
 # VARIABLE SELECTION
 # =========================================================
-st.subheader("Variable Analysis")
+st.subheader("Análisis por variable")
 
 numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns.tolist()
 categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
@@ -65,19 +65,19 @@ if "customerID" in categorical_cols:
     categorical_cols.remove("customerID")
 
 analysis_type = st.radio(
-    "Select variable type",
+    "Tipo de variable",
     ["Numerical", "Categorical"],
     horizontal=True
 )
 
 if analysis_type == "Numerical":
     selected_col = st.selectbox(
-        "Select numerical variable",
+        "Variable numérica",
         numeric_cols
     )
 else:
     selected_col = st.selectbox(
-        "Select categorical variable",
+        "Variable categórica",
         categorical_cols
     )
 
@@ -98,7 +98,7 @@ st.divider()
 # =========================================================
 # SUMMARY STATISTICS
 # =========================================================
-st.subheader("Summary Statistics")
+st.subheader("Estadísticos resumidos")
 
 if analysis_type == "Numerical":
     summary = (
