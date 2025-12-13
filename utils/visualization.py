@@ -114,8 +114,8 @@ def plot_feature_importance(
 
     sns.barplot(
         data=df_plot,
-        x="Importance",
-        y="Feature",
+        x="importance",
+        y="feature",
         palette="Blues_r",
         ax=ax
     )
@@ -125,3 +125,4 @@ def plot_feature_importance(
     ax.set_ylabel("")
 
     return fig
+
