@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-from utils.loader import load_dataset, load_feature_importance, load_correlation_matrix
+from utils.loader import load_dataset, load_feature_importance
 from utils.visualization import (
     set_style,
     plot_numeric_by_churn,
     plot_categorical_by_churn,
     plot_feature_importance,
-    plot_correlation_heatmap,
 )
 from utils.layout import render_sidebar
 
@@ -46,11 +45,6 @@ df["SeniorCitizen"] = df["SeniorCitizen"].map({0: "No", 1: "Yes"})
 @st.cache_data
 def get_feature_importances():
     return load_feature_importance()
-
-
-@st.cache_data
-def get_correlation_matrix():
-    return load_correlation_matrix()
 
 # =========================================================
 # DATA OVERVIEW
@@ -132,21 +126,6 @@ with controls_col:
             .unstack(fill_value=0)
         )
         st.dataframe(summary, use_container_width=True)
-
-st.divider()
-
-# =========================================================
-# CORRELATION MATRIX
-# =========================================================
-st.subheader("Matriz de correlación")
-
-try:
-    corr_df = get_correlation_matrix()
-    set_style()
-    corr_fig = plot_correlation_heatmap(corr_df)
-    st.pyplot(corr_fig, use_container_width=True)
-except FileNotFoundError as err:
-    st.warning(str(err))
 
 st.divider()
 
