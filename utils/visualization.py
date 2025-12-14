@@ -114,9 +114,10 @@ def plot_feature_importance(
         data=df_plot,
         x="importance",
         y="feature",
+        hue="feature",
         palette="Blues_r",
+        legend=False,
         ax=ax
-    )
 
     ax.set_title("Top Feature Importances", fontsize=13)
     ax.set_xlabel("Importance")
