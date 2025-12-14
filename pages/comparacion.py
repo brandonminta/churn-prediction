@@ -157,7 +157,6 @@ if best_row is not None:
 # =========================================================
 st.subheader("Matriz de confusión por modelo")
 
-# Labels legibles para el usuario
 model_labels = {
     key: key.replace("_", " ").title()
     for key in results.keys()
@@ -168,18 +167,25 @@ selected_label = st.selectbox(
     list(model_labels.values())
 )
 
-# Recuperar la key real
 selected_model_key = next(
     k for k, v in model_labels.items() if v == selected_label
 )
 
 metrics_selected = results[selected_model_key]["metrics"]
-cm = metrics_selected["confusion_matrix"]
+
+cm_array = metrics_selected["confusion_matrix"]
+
+cm_df = pd.DataFrame(
+    cm_array,
+    index=["Churn", "No Churn"],
+    columns=["Churn", "No Churn"]
+)
 
 fig_cm = plot_confusion_matrix(
-    cm,
-    labels=("Churn", "No Churn"),
-    normalize=True
+    cm_df,
+    normalize=True,
+    title="Confusion Matrix"
 )
 
 st.pyplot(fig_cm, use_container_width=False)
+
