@@ -143,7 +143,7 @@ else:
 
 
 # =========================================================
-# PARAMETER INSPECTION (OPTIONAL)
+# PARAMETER INSPECTION 
 # =========================================================
 if best_row is not None:
     with st.expander("Parámetros del mejor modelo"):
@@ -153,7 +153,7 @@ if best_row is not None:
 
 
 # =========================================================
-# CONFUSION MATRIX (MODEL LEVEL)
+# CONFUSION MATRIX
 # =========================================================
 st.subheader("Matriz de confusión por modelo")
 
