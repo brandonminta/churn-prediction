@@ -4,7 +4,7 @@ import seaborn as sns
 from numbers import Number
 
 from utils.loader import load_model_results
-from utils.visualization import plot_metric_comparison
+from utils.visualization import plot_metric_comparison, plot_confusion_matrix
 from utils.layout import render_sidebar
 
 
@@ -150,3 +150,36 @@ if best_row is not None:
         selected_key = f"{best_row['Model'].lower()}_{best_row['Feature Set'].lower()}"
         params = results[selected_key]["params"]
         st.json(params)
+
+
+# =========================================================
+# CONFUSION MATRIX (MODEL LEVEL)
+# =========================================================
+st.subheader("Matriz de confusión por modelo")
+
+# Labels legibles para el usuario
+model_labels = {
+    key: key.replace("_", " ").title()
+    for key in results.keys()
+}
+
+selected_label = st.selectbox(
+    "Selecciona un modelo para análisis detallado",
+    list(model_labels.values())
+)
+
+# Recuperar la key real
+selected_model_key = next(
+    k for k, v in model_labels.items() if v == selected_label
+)
+
+metrics_selected = results[selected_model_key]["metrics"]
+cm = metrics_selected["confusion_matrix"]
+
+fig_cm = plot_confusion_matrix(
+    cm,
+    labels=("Churn", "No Churn"),
+    normalize=True
+)
+
+st.pyplot(fig_cm, use_container_width=False)
