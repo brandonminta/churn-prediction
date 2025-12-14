@@ -86,6 +86,19 @@ def load_feature_importance() -> pd.DataFrame:
         "Feature importance file not found (pkl or csv)."
     )
 
+def load_confusion_matrix() -> pd.DataFrame:
+    """
+    Load feature importance table.
+    """
+    csv_path = BASE_DIR / "results" / "correlation_matrix.csv"
+
+    if csv_path.exists():
+        return pd.read_csv(csv_path)
+
+    raise FileNotFoundError(
+        "Correlation Matrix file not found."
+    )
+
 
 def available_models():
     return ["catboost", "stacking", "voting"]
@@ -93,4 +106,5 @@ def available_models():
 
 def available_feature_sets():
     return ["full", "reduced"]
+
 
