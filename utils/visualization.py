@@ -117,7 +117,7 @@ def plot_feature_importance(
         hue="feature",
         palette="Blues_r",
         legend=False,
-        ax=ax
+        ax=ax)
 
     ax.set_title("Top Feature Importances", fontsize=13)
     ax.set_xlabel("Importance")
