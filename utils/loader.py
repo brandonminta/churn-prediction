@@ -87,6 +87,16 @@ def load_feature_importance() -> pd.DataFrame:
     )
 
 
+def load_correlation_matrix() -> pd.DataFrame:
+    """
+    Load correlation matrix from CSV.
+    """
+    path = BASE_DIR / "results" / "correlation_matrix.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"Correlation matrix not found: {path}")
+    return pd.read_csv(path, index_col=0)
+
+
 def available_models():
     return ["catboost", "stacking", "voting"]
 

@@ -27,8 +27,8 @@ def plot_numeric_by_churn(
         data=df,
         x=churn_col,
         y=column,
-        palette="Set2",
-        ax=ax
+        color=sns.color_palette("Set2")[0],
+        ax=ax,
     )
 
     ax.set_title(f"{column} by {churn_col}", fontsize=13)
@@ -53,7 +53,7 @@ def plot_categorical_by_churn(
         x=column,
         hue=churn_col,
         palette="Set2",
-        ax=ax
+        ax=ax,
     )
 
     ax.set_title(f"{column} by {churn_col}", fontsize=13)
@@ -86,7 +86,7 @@ def plot_metric_comparison(
         y=metric,
         hue="Feature Set",
         palette="Set2",
-        ax=ax
+        ax=ax,
     )
 
     ax.set_title(f"Comparison by {metric}", fontsize=13)
@@ -122,4 +122,47 @@ def plot_feature_importance(
     ax.set_xlabel("Importance")
     ax.set_ylabel("")
 
+    return fig
+
+
+# =========================================================
+# CORRELATION HEATMAP
+# =========================================================
+def plot_correlation_heatmap(corr_df: pd.DataFrame):
+    """
+    Heatmap for a correlation matrix DataFrame.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(
+        corr_df,
+        cmap="RdBu_r",
+        center=0,
+        annot=False,
+        cbar_kws={"shrink": 0.7},
+        ax=ax,
+    )
+    ax.set_title("Correlation matrix", fontsize=13)
+    return fig
+
+
+# =========================================================
+# CONFUSION MATRIX
+# =========================================================
+def plot_confusion_matrix(cm: pd.DataFrame):
+    """
+    Display a confusion matrix with consistent styling.
+    """
+    fig, ax = plt.subplots(figsize=(5, 4))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        cbar=False,
+        linewidths=0.5,
+        ax=ax,
+    )
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("True label")
+    ax.set_title("Confusion Matrix", fontsize=13)
     return fig
