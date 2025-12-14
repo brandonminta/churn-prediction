@@ -19,19 +19,19 @@ render_sidebar()
 # =========================================================
 # MAIN LANDING PAGE
 # =========================================================
-st.title("Plataforma de churn prediction")
+st.title("Churn Prediction")
 
 st.markdown(
     """
-    Portal interactivo para evaluar riesgo de churn en el dataset Telco. La
-    aplicación organiza el flujo completo (EDA, comparación de modelos y
-    predicción) en páginas modulares con navegación consistente.
+    Portal interactivo para evaluar riesgo de churn en Telco. La
+    aplicación permite explorar los datos, comparar distintos modelos de
+    machine learning y realizar predicciones individuales.
     """
 )
 
 st.divider()
 
-st.subheader("Qué ofrece la aplicación")
+st.subheader("Funcionalidades principales")
 
 col1, col2, col3 = st.columns(3)
 
@@ -40,8 +40,7 @@ with col1:
         """
         **Predicción**
 
-        Ejecución de inferencias con versiones *full* o *reduced* de features,
-        respetando el mismo pipeline del entrenamiento.
+        Ejecución de inferencias con versiones *full* o *reduced* de features.
         """
     )
 
@@ -50,8 +49,7 @@ with col2:
         """
         **Comparación**
 
-        Métricas y parámetros clave de cada modelo entrenado en un mismo
-        conjunto de validación.
+        Métricas y parámetros clave de cada modelo bajo las mismas condiciones.
         """
     )
 
@@ -60,9 +58,6 @@ with col3:
         """
         **EDA interactivo**
 
-        Distribuciones y relaciones con churn para entender el dataset de
-        entrada y sus variables críticas.
+        Distribuciones y relaciones nuestra variable objectivo para entender nuestra base de datos y sus variables críticas.
         """
     )
-
-st.info("Utiliza el panel lateral para acceder directamente a cada sección.")
