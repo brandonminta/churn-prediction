@@ -43,6 +43,7 @@ with col1:
         Ejecución de inferencias con versiones *full* o *reduced* de features.
         """
     )
+    st.page_link("pages/prediccion.py", label="Ir a Predicción")
 
 with col2:
     st.markdown(
@@ -52,6 +53,7 @@ with col2:
         Métricas y parámetros clave de cada modelo bajo las mismas condiciones.
         """
     )
+    st.page_link("pages/comparacion.py", label="Ver Comparación")
 
 with col3:
     st.markdown(
@@ -61,3 +63,4 @@ with col3:
         Distribuciones y relaciones nuestra variable objectivo para entender nuestra base de datos y sus variables críticas.
         """
     )
+    st.page_link("pages/dashboard.py", label="Explorar EDA")
