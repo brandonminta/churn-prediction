@@ -131,40 +131,39 @@ def plot_feature_importance(
 
 def plot_confusion_matrix(
     cm,
-    labels=("No Churn", "Churn"),
+    labels=None,
     normalize: bool = False,
     title: str = "Confusion Matrix"
 ):
     """
-    Plot a confusion matrix from a precomputed array.
+    Plot a confusion matrix from a precomputed array or DataFrame.
 
     Parameters
     ----------
-    cm : array-like (2x2)
+    cm : array-like (2x2) or pd.DataFrame
         Confusion matrix.
-    labels : tuple
-        Class labels for axes.
+    labels : tuple or None
+        Class labels (used only if cm is array-like).
     normalize : bool
         Normalize rows (recall-based).
     title : str
         Plot title.
     """
-    cm = np.array(cm)
+
+    df_cm = cm.copy()
 
     if normalize:
-        cm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+        df_cm = df_cm.div(df_cm.sum(axis=1), axis=0)
         title = f"{title} (Normalized)"
 
     fig, ax = plt.subplots(figsize=(5, 4))
 
     sns.heatmap(
-        cm,
+        df_cm,
         annot=True,
         fmt=".2f" if normalize else "d",
         cmap="Blues",
         cbar=False,
-        xticklabels=labels,
-        yticklabels=labels,
         ax=ax
     )
 
