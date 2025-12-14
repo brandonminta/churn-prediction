@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from utils.loader import load_dataset, load_feature_importance
+from utils.loader import load_dataset, load_feature_importance, load_confusion_matrix
 from utils.visualization import (
     set_style,
     plot_numeric_by_churn,
