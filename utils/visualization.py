@@ -129,7 +129,7 @@ def plot_feature_importance(
 # Matrix de confusion
 # =========================================================
 
-def plot_confusion_matrix_from_array(
+def plot_confusion_matrix(
     cm,
     labels=("No Churn", "Churn"),
     normalize: bool = False,
