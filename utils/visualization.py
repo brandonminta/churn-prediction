@@ -123,3 +123,53 @@ def plot_feature_importance(
     ax.set_ylabel("")
 
     return fig
+
+
+# =========================================================
+# Matrix de confusion
+# =========================================================
+
+def plot_confusion_matrix_from_array(
+    cm,
+    labels=("No Churn", "Churn"),
+    normalize: bool = False,
+    title: str = "Confusion Matrix"
+):
+    """
+    Plot a confusion matrix from a precomputed array.
+
+    Parameters
+    ----------
+    cm : array-like (2x2)
+        Confusion matrix.
+    labels : tuple
+        Class labels for axes.
+    normalize : bool
+        Normalize rows (recall-based).
+    title : str
+        Plot title.
+    """
+    cm = np.array(cm)
+
+    if normalize:
+        cm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+        title = f"{title} (Normalized)"
+
+    fig, ax = plt.subplots(figsize=(5, 4))
+
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt=".2f" if normalize else "d",
+        cmap="Blues",
+        cbar=False,
+        xticklabels=labels,
+        yticklabels=labels,
+        ax=ax
+    )
+
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("True label")
+    ax.set_title(title, fontsize=13)
+
+    return fig
