@@ -112,10 +112,10 @@ def plot_feature_importance(
 
     sns.barplot(
         data=df_plot,
-        x="Importance",
-        y="Feature",
-        color=sns.color_palette("Blues_r")[2],
-        ax=ax,
+        x="importance",
+        y="feature",
+        palette="Blues_r",
+        ax=ax
     )
 
     ax.set_title("Top Feature Importances", fontsize=13)

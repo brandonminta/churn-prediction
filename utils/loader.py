@@ -73,8 +73,8 @@ def load_feature_importance() -> pd.DataFrame:
     """
     Load feature importance table.
     """
-    pkl_path = BASE_DIR / "results" / "feature_importance.pkl"
-    csv_path = BASE_DIR / "results" / "feature_importance.csv"
+    pkl_path = BASE_DIR / "results" / "feature_importances.pkl"
+    csv_path = BASE_DIR / "results" / "feature_importances.csv"
 
     if pkl_path.exists():
         return pd.read_pickle(pkl_path)
@@ -103,3 +103,4 @@ def available_models():
 
 def available_feature_sets():
     return ["full", "reduced"]
+
