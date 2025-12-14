@@ -27,7 +27,9 @@ def plot_numeric_by_churn(
         data=df,
         x=churn_col,
         y=column,
+        hue=churn_col,
         palette="Set2",
+        legend=False,
         ax=ax
     )
 
