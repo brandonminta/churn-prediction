@@ -7,7 +7,8 @@ from utils.visualization import (
     plot_numeric_by_churn,
     plot_categorical_by_churn,
     plot_feature_importance,
-    plot_confusion_matrix
+    plot_confusion_matrix,
+    plot_correlation_matrix
 )
 from utils.layout import render_sidebar
 
@@ -151,24 +152,18 @@ st.divider()
 # =========================================================
 # CONFUSION MATRIX
 # =========================================================
-st.subheader("Matriz de confusión")
+st.divider()
+st.subheader("Matriz de correlación")
 
 try:
-    cm = load_confusion_matrix()
+    corr = load_confusion_matrix()
 
-    normalize = st.checkbox(
-        "Normalizar por clase real",
-        value=False,
-        help="Muestra proporciones en lugar de conteos absolutos"
+    fig_corr = plot_correlation_matrix(
+        corr,
+        title="Correlation Matrix - Numerical Features"
     )
 
-    fig_cm = plot_confusion_matrix(
-        cm,
-        normalize=normalize,
-        title="Confusion Matrix - Test Set"
-    )
-
-    st.pyplot(fig_cm, use_container_width=False)
+    st.pyplot(fig_corr, use_container_width=True)
 
 except FileNotFoundError as err:
     st.warning(str(err))
