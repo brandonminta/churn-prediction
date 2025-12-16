@@ -159,11 +159,12 @@ try:
     corr = load_confusion_matrix()
 
     fig_corr = plot_correlation_matrix(
-        corr,
+        df,
         title="Correlation Matrix - Numerical Features"
     )
-
+    
     st.pyplot(fig_corr, use_container_width=True)
+    
 
 except FileNotFoundError as err:
     st.warning(str(err))
