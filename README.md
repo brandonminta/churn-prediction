@@ -15,6 +15,21 @@ módulos principales:
 La aplicación está pensada para Python 3.11 y depende de las librerías listadas en
 `requirements.txt`.
 
+## Cómo ejecutar
+
+1. Crea y activa un entorno virtual.
+2. Instala las dependencias: `pip install -r requirements.txt`.
+3. Lanza la app: `streamlit run app.py`.
+
+El servidor abrirá `http://localhost:8501`.
+
+## Uso rápido
+
+- **Inicio:** desde la portada navega a cualquiera de las secciones laterales.
+- **Predicción:** completa el formulario de características y obtén la probabilidad de churn para un cliente.
+- **Comparación:** revisa las métricas de los modelos entrenados (*full* y *reduced*) y sus hiperparámetros.
+- **EDA:** explora distribuciones y relaciones de variables con gráficos interactivos.
+
 ## Estructura
 
 - `app.py`: landing page y navegación.
