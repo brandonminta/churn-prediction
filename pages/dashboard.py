@@ -7,6 +7,7 @@ from utils.visualization import (
     plot_numeric_by_churn,
     plot_categorical_by_churn,
     plot_feature_importance,
+    plot_confusion_matrix
 )
 from utils.layout import render_sidebar
 
@@ -143,5 +144,31 @@ try:
     )
     fig_importance = plot_feature_importance(df_importance, top_n=top_n)
     st.pyplot(fig_importance, use_container_width=True)
+except FileNotFoundError as err:
+    st.warning(str(err))
+st.divider()
+
+# =========================================================
+# CONFUSION MATRIX
+# =========================================================
+st.subheader("Matriz de confusión")
+
+try:
+    cm = load_confusion_matrix()
+
+    normalize = st.checkbox(
+        "Normalizar por clase real",
+        value=False,
+        help="Muestra proporciones en lugar de conteos absolutos"
+    )
+
+    fig_cm = plot_confusion_matrix(
+        cm,
+        normalize=normalize,
+        title="Confusion Matrix - Test Set"
+    )
+
+    st.pyplot(fig_cm, use_container_width=False)
+
 except FileNotFoundError as err:
     st.warning(str(err))
