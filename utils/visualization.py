@@ -178,7 +178,7 @@ def plot_confusion_matrix(
 
 def plot_correlation_matrix(
     df: pd.DataFrame,
-    title: str = "Correlation Matrix (Numerical Variables)"
+    title: str = "Correlation Matrix - Variables Numericas"
 ):
     """
     Plot correlation matrix using only numerical variables.
@@ -197,7 +197,7 @@ def plot_correlation_matrix(
         corr,
         cmap="RdBu_r",
         center=0,
-        annot=False,
+        annot=True,
         linewidths=0.5,
         cbar=True,
         ax=ax
