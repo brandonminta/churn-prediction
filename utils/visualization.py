@@ -177,12 +177,20 @@ def plot_confusion_matrix(
     return fig
 
 def plot_correlation_matrix(
-    corr: pd.DataFrame,
-    title: str = "Correlation Matrix"
+    df: pd.DataFrame,
+    title: str = "Correlation Matrix (Numerical Variables)"
 ):
     """
-    Plot correlation matrix heatmap.
+    Plot correlation matrix using only numerical variables.
     """
+
+    # 1️Seleccionar solo variables numéricas
+    numeric_df = df.select_dtypes(include=["int64", "float64"])
+
+    # Calcular correlación
+    corr = numeric_df.corr()
+
+    # Plot
     fig, ax = plt.subplots(figsize=(8, 6))
 
     sns.heatmap(
@@ -190,7 +198,6 @@ def plot_correlation_matrix(
         cmap="RdBu_r",
         center=0,
         annot=False,
-        fmt=".2f",
         linewidths=0.5,
         cbar=True,
         ax=ax
@@ -201,3 +208,4 @@ def plot_correlation_matrix(
     plt.yticks(rotation=0)
 
     return fig
+ fig
