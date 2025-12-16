@@ -175,3 +175,29 @@ def plot_confusion_matrix(
     ax.set_title(title, fontsize=13)
 
     return fig
+
+def plot_correlation_matrix(
+    corr: pd.DataFrame,
+    title: str = "Correlation Matrix"
+):
+    """
+    Plot correlation matrix heatmap.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    sns.heatmap(
+        corr,
+        cmap="RdBu_r",
+        center=0,
+        annot=False,
+        fmt=".2f",
+        linewidths=0.5,
+        cbar=True,
+        ax=ax
+    )
+
+    ax.set_title(title, fontsize=13)
+    plt.xticks(rotation=45, ha="right")
+    plt.yticks(rotation=0)
+
+    return fig
